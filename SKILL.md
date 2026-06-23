@@ -351,7 +351,9 @@ over directly. When in doubt about a specific token, treat the tool's own docume
 
 **Verified against the live docs** (browser-rendered, 2026 — the docs are a client-side
 SPA so a plain HTTP fetch returns only the shell; render the JS or read the official
-*Labels, Types & Intervals* / *Framework Basics* pages directly). The tool's own
+*Labels, Types & Intervals* / *Framework Basics* pages directly). For the exact workflow
+to read the live docs (sitemap → real slugs → JS render), see
+`references/accessing-live-docs.md`. The tool's own
 **State-Connection formula table** confirms and extends the above:
 
 | Formula type | Format | Examples | Applies to |
