@@ -180,9 +180,12 @@ The label is the **flow rate**: how many resources may move per time step.
   control than a fractional rate like `0.2` and allow bursts.) **Note:** the 2012 book
   writes intervals with a slash (`1/5`); Machinations.io uses the **pipe** (`1|5`) —
   emit the pipe form. (See "Functional syntax" below.)
-- **Multipliers (`n*` prefix):** `3*50%` = three independent 50% chances in one step;
-  `2*D3`. Equivalent to drawing n separate probable outputs, but tidier. (Use separate
-  outputs only when the probabilities differ.)
+- **Multipliers (`n*` prefix) — book notation, NOT verified in Machinations.io:** the
+  2012 book writes `3*50%` (three independent 50% chances in one step) and `2*D3`. The
+  live tool's Resource-Connection **Formula Type** list (Number, Chance, All, Dice Roll,
+  Formula, Weights) has **no multiplier type**, and the `2*D3` effect is better expressed
+  with the **Formula** type (math.js) or by drawing N separate connections/probable
+  outputs. Treat `n*` as conceptual shorthand only; don't emit it to Machinations.io.
 
 ### Inputs / outputs / origin / target
 A connection *into* a node is an **input**; *out of* a node, an **output**. The node a
@@ -198,8 +201,10 @@ If two nodes pull from the same source with too little to satisfy both: in
 ## State connections (dotted arrows — the current state controls something)
 
 A state connection runs from an **origin node** to a target that is a node, a resource
-connection's label, or (rarely) another state connection. Six behaviors, identified by
-label:
+connection's label, or (rarely) another state connection. Behaviors are identified by
+label. The **modifier** behaviors come in three operator forms — reactive `+`/`-` and
+overwrite `=` (covered together below) — alongside triggers, activators, and reverse
+triggers:
 
 ### Label modifier — label begins with `+` or `-`
 Targets a resource connection's **rate** and changes it as the origin's resource count
@@ -210,15 +215,19 @@ L(t+1) = L(t) + Σ ( M × ΔS )
 ```
 
 A positive modifier makes the target *follow* the origin (up when it rises); a negative
-modifier *inverts* it. With a unit suffix it retargets: `+1i` modifies an **interval**,
-`+2m` modifies a **multiplier**.
+modifier *inverts* it. With a unit suffix it retargets: `+1i` modifies an **interval**
+(verified — the live formula table lists interval modifiers `+xi`/`-xi`). The book also
+defines `+2m` to modify a **multiplier**, but multipliers are unverified in Machinations.io
+(see the multiplier note under Resource connections) — treat `+Nm` as book notation only.
 
 ### Node modifier — label is a number `M`
 Targets another node's **resource count**: `N(t+1) = N(t) + Σ(M × ΔS)`. It can *create
 or destroy* resources, so use it only for abstract bookkeeping values — for tangible
-resources use real sources/drains. Fractional labels (`+1/3`, `-2/4`) accumulate per
-unit of change, rounded down. A node driven negative is in **shortage**: nothing can be
-pulled from it, and incoming resources backfill the shortage first.
+resources use real sources/drains. The verified modifier format is a signed **decimal**
+(`+2`, `-0.3`, `+50%`); the book's slash-fraction labels (`+1/3`, `-2/4`) are **book
+notation** — in Machinations.io write the decimal (`+0.333`) or a math.js expression
+instead. A node driven negative is in **shortage**: nothing can be pulled from it, and
+incoming resources backfill the shortage first.
 
 ### Trigger — label is `*`
 Fires its target when **all** the origin's inputs are *satisfied* (each input received
@@ -237,12 +246,14 @@ Fires its target when the origin tries to pull but **cannot** satisfy all its in
 Models "the player ran out and something bad happens" (e.g. forced sell-offs when upkeep
 can't be paid), and can drive an end condition.
 
-### Overwrite — label is `=`
-*(Machinations.io; verified from the live Labels/Types doc.)* Sets the target's formula
-or node value **to** the origin's current value, rather than accumulating. Contrast with
-`+1`/`-1` modifiers, which make the target *react to changes* from other inputs. Rule of
-thumb: use `=` to clamp/overwrite a value outright; use `+`/`-` when the target should
-respond incrementally to several driving inputs.
+### Overwrite operator — modifier label is `=`
+*(Machinations.io; verified from the live Labels/Types doc.)* The third modifier operator,
+applicable to both **label (value) modifiers** and **node modifiers** — i.e. it's a variant
+of the two modifier behaviors above, not a separate connection type. Where `+`/`-` make the
+target *react to changes* (accumulate the signed delta from each input), `=` **sets** the
+target's formula or node value *to* the origin's current value. Rule of thumb: use `=` to
+clamp/overwrite a value outright; use `+`/`-` when the target should respond incrementally
+to several driving inputs.
 
 ---
 
@@ -330,76 +341,24 @@ balanced by friction/escalation.
 
 ---
 
-## Functional syntax (emit for Machinations.io)
+## Functional syntax → see `references/machinations-io-syntax.md`
 
-The book (2012) and the live Machinations.io tool share identical *concepts* but differ
-in a few *label characters*. When the output is destined for Machinations.io, emit the
-tool's syntax, not the book's:
+The book (2012) and the live tool share identical *concepts* but differ in a few *label
+characters*. When emitting concrete syntax for Machinations.io, load
+**`references/machinations-io-syntax.md`** — the verified, token-level lookup. It covers:
 
-| Concept | Book (2012) | Emit for Machinations.io |
-|---|---|---|
-| Interval | `1/5` (slash) | `1|5` (**pipe**) — 1 resource every 5 steps |
-| Range | `3-6` | `3..6` (**double-dot**) |
-| Dice | `D6`, `2D6` | `Dx` — `D6`, `2D10`, `2D6+3` |
-| All resources | `all` | `all` (unchanged) |
-| Register / formula | letters + `max`/`min` | **math.js** syntax (full function library) |
+- Book→tool character mapping (interval `1\|5`, range `3..6`, dice, math.js registers) and
+  **book notation NOT to emit** (`n*`/`+Nm` multipliers, slash-fractions).
+- The **Resource-Connection Formula Types** (Number, Chance, All, Dice Roll, Formula,
+  Weights) and the **State-Connection formula table** (modifiers `+`/`-`/`=`, intervals,
+  conditions, ranges, triggers).
+- Register internals, custom variables (randomness + math-expression), element-type
+  abbreviations (and the caveat they're *not* hotkeys/export codes), and machine formats
+  (XML / JSON / Google Sheets).
 
-Everything else (rates as plain numbers, `%` probabilities, gate weights, `+`/`-`
-modifiers, `*` triggers, `!` reverse triggers, the `p`/`&`/`*`/`s` node markers) carries
-over directly. When in doubt about a specific token, treat the tool's own documentation
-/ in-app behavior as ground truth over the book.
-
-**Verified against the live docs** (browser-rendered, 2026 — the docs are a client-side
-SPA so a plain HTTP fetch returns only the shell; render the JS or read the official
-*Labels, Types & Intervals* / *Framework Basics* pages directly). For the exact workflow
-to read the live docs (sitemap → real slugs → JS render), see
-`references/accessing-live-docs.md`. The tool's own
-**State-Connection formula table** confirms and extends the above:
-
-| Formula type | Format | Examples | Applies to |
-|---|---|---|---|
-| modifiers | `+x` `-x` `+x%` `-x%` | `+2` `-0.3` `+50%` `-2%` | value (label) modifiers; node modifiers |
-| interval modifiers | `+xi` `-xi` | `+2i` `-1i` | value (label) modifiers |
-| probabilities | `x%` `x` | `20%` `3` | triggers after a gate |
-| conditions | `==x` `!=x` `>=x` … | `==0` `!=2` `>=4` | activators; triggers after a gate |
-| range (conditions) | `x..y` | `2..5` `4..7` | activators; triggers after a gate |
-| trigger | `*` | `*` | triggers |
-| reverse trigger | `!` | `!` | reverse triggers |
-| **overwrite** | `=` | `=` | value modifiers; node modifiers |
-
-Two things the book/earlier notes miss, both confirmed live:
-- **Overwrite operator `=`** — sets a connection's formula or a node's value *to* the
-  origin's value (vs. `+1`, which makes the target *react to changes* from other inputs).
-  Use `=` to clamp/overwrite; use `+`/`-` for reactive accumulation.
-- **Combining conditions in one formula** — multiply for AND, add for OR (a condition
-  evaluates to `1` if true, `0` if false). `largerEq(a,100)*smaller(a,200)` ==
-  `and(largerEq(a,100),smaller(a,200))`. And `largerEq(a,2)*(c+4)` only computes `(c+4)`
-  when `a>=2` (else the whole thing is `0`). Works in registers and custom variables.
-
-Interval facts confirmed verbatim from *Labels, Types & Intervals*: `3|2` = "3 Resources
-every 2 Steps"; `D6|3` = "1–6 Resources every 3 steps"; `1|(3..6)` = "1 Resource every 3
-to 6 steps"; and even `D6|D6` = "1–6 Resources every 1 to 6 steps". `+1i`/`-3i` modifiers
-dynamically change a target's **interval**.
-
-> Machinations.io now frames the framework as **six core node types** (pool, source,
-> drain, gate, converter, trader) plus two connections, with registers, delays/queues,
-> and end conditions as additional element types. The book's "pool + seven advanced
-> nodes" split is the same set organized differently.
->
-> **Official element codes** (from the live *Framework Basics* doc — the tool labels nodes
-> by a single letter): Source = **S**, Pool = **P**, Drain = **D**, Converter = **V**,
-> Trader = **X**, Gate = **G**; Resource Connection = **C**, State Connection = **Alt+C**.
-> The doc's one-line definitions: sources *create*, pools *collect*, drains *consume/destroy*,
-> converters *transmute*, traders *exchange*, gates *distribute* resources. `D6` notation is
-> literally read as "Die 6" in-app.
-
-The tool also has concrete machine formats if a diagram ever needs to move
-programmatically rather than through its AI builder: **XML** (Unity plugin local cache,
-human-readable, version-controllable), **JSON** (the WebSocket/socket.io API —
-`game-init` / `get-all-elements` return node and connection IDs, types, labels, and
-resource counts), and **Google Sheets** (export/import as a component list with
-parameters). These are for direct import/integration; the conceptual handoff below is
-for the AI builder.
+Quick orientation only: rates are plain positive integers; `%` = chance, `all` = everything,
+`Dx` = dice, `1\|5` = interval (pipe), `..` = range, `+`/`-`/`=` = modifier operators,
+`*` = trigger, `!` = reverse trigger; registers/formulas use **math.js**.
 
 ## Expressing a diagram
 
@@ -464,8 +423,8 @@ structure the pattern vocabulary names.
 | Passive | (none) | fires only when triggered |
 | Push mode | `p` | pushes out instead of pulling in |
 | All-or-none | `&` | move full amount or nothing |
-| Resource conn. | solid arrow + rate | resources travel; `all`, dice, `%`, `n\|interval`, `n*` |
-| Label modifier | dotted, `+`/`-` | changes a connection's rate (`i`=interval, `m`=multiplier) |
+| Resource conn. | solid arrow + rate | resources travel; positive ints, `all`, dice, `%`, `n\|interval` |
+| Label modifier | dotted, `+`/`-`/`=` | changes a connection's rate (`i`=interval; `=` overwrites) |
 | Node modifier | dotted, number | changes a node's resource count |
 | Trigger | dotted, `*` | fires target when origin's inputs are satisfied |
 | Activator | dotted, condition | enables/inhibits target by origin's state |
