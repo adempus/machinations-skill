@@ -28,7 +28,7 @@ workflow load on demand from `references/`.
 
 ## Provenance
 
-Conceptual grounding follows the 2012 Machinations framework. Functional syntax (intervals `1\|5`, ranges `3..6`, math.js registers, the `=` overwrite operator) was **verified against the live machinations.io docs** — which render client-side, so the pages were read via a JS-executing browser rather than a plain HTTP fetch. Book notation that does **not** survive against the live tool (e.g. `n*` multipliers, slash-fraction modifiers) is flagged as such rather than emitted, and the single-letter element labels (S/P/D/V/X/G) are documented as type *abbreviations* — not keyboard shortcuts or export codes.
+Conceptual grounding follows the 2012 Machinations framework. Functional syntax (intervals `1|5`, ranges `3..6`, math.js registers, the `=` overwrite operator) was **verified against the live machinations.io docs** — which render client-side, so the pages were read via a JS-executing browser rather than a plain HTTP fetch. Book notation that does **not** survive against the live tool (e.g. `n*` multipliers, slash-fraction modifiers) is flagged as such rather than emitted, and the single-letter element labels (S/P/D/V/X/G) are documented as type *abbreviations* — not keyboard shortcuts or export codes.
 
 ## Install
 

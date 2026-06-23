@@ -347,7 +347,7 @@ The book (2012) and the live tool share identical *concepts* but differ in a few
 characters*. When emitting concrete syntax for Machinations.io, load
 **`references/machinations-io-syntax.md`** — the verified, token-level lookup. It covers:
 
-- Book→tool character mapping (interval `1\|5`, range `3..6`, dice, math.js registers) and
+- Book→tool character mapping (interval `1|5`, range `3..6`, dice, math.js registers) and
   **book notation NOT to emit** (`n*`/`+Nm` multipliers, slash-fractions).
 - The **Resource-Connection Formula Types** (Number, Chance, All, Dice Roll, Formula,
   Weights) and the **State-Connection formula table** (modifiers `+`/`-`/`=`, intervals,
@@ -357,7 +357,7 @@ characters*. When emitting concrete syntax for Machinations.io, load
   (XML / JSON / Google Sheets).
 
 Quick orientation only: rates are plain positive integers; `%` = chance, `all` = everything,
-`Dx` = dice, `1\|5` = interval (pipe), `..` = range, `+`/`-`/`=` = modifier operators,
+`Dx` = dice, `1|5` = interval (pipe), `..` = range, `+`/`-`/`=` = modifier operators,
 `*` = trigger, `!` = reverse trigger; registers/formulas use **math.js**.
 
 ## Expressing a diagram
